@@ -1,0 +1,7 @@
+[submodule "web"]
+	path = web
+	url = https://github.com/axiorissocial/web
+
+[submodule "server"]
+	path = server
+	url = https://github.com/axiorissocial/server
