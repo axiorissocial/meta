@@ -4,12 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:both": "node ./scripts/start-both.js",
+    "start:server": "cd server && yarn start",
+    "start:frontend": "cd web && yarn start",
+    "setup": "cd server && yarn prisma:migrate && yarn prisma:generate"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "private": true,
-  "workspaces": ["web", "server", "shared"]
+  "workspaces": ["web", "server"]
 }
