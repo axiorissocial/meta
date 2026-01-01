@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: axioris-server
+    environment:
+      - DATABASE_URL=file:./dev.db
+      - PORT=3001
+      - SESSION_SECRET=${SESSION_SECRET:-your-secret-key-change-this}
+      - MESSAGE_ENCRYPTION_KEY=${MESSAGE_ENCRYPTION_KEY:-change-this-encryption-key}
+      - FRONTEND_URL=http://localhost:5173
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-CHANGE_THIS}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-CHANGE_THIS}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-CHANGE_THIS}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-CHANGE_THIS}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL:-http://localhost:5173/api/auth/google/callback}
+      - NODE_ENV=${NODE_ENV:-development}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+      - server-data:/app/prisma
+      - server-sessions:/app/sessions
+      - server-uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/api/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - axioris-network
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: axioris-web
+    environment:
+      - VITE_API_URL=http://server:3001
+      - VITE_HMR_PROTOCOL=ws
+      - VITE_HMR_HOST=localhost
+      - VITE_HMR_PORT=5173
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - axioris-network
+
+volumes:
+  server-data:
+  server-sessions:
+  server-uploads:
+
+networks:
+  axioris-network:
+    driver: bridge
