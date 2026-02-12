@@ -74,7 +74,7 @@ async function main() {
     if (!fs.existsSync(path.join(dir, binPath))) {
       console.log(`[installer] installing dependencies in ${dir} ...`);
       // use yarn for installs
-      const installer = spawnProcess(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['install', '--silent'], dir, 'installer');
+      const installer = spawnProcess(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['install', '--silent', '--offline'], dir, 'installer');
       return new Promise((resolve, reject) => {
         installer.on('exit', (code) => {
           if (code === 0) resolve(); else reject(new Error('install failed'));
